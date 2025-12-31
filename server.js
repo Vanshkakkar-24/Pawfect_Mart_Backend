@@ -10,6 +10,7 @@ import cartRoutes from "./routes/cartRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import uploadRoutes from "./routes/uploadRoutes.js";
 import wishlistRoutes from "./routes/wishlistRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 
 connectDB();
 
@@ -18,6 +19,7 @@ app.use(cors());
 app.use(express.json());
 app.use("/api/upload", uploadRoutes);
 app.use("/api/wishlist", wishlistRoutes);
+app.use("/api/users", userRoutes);
 
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);

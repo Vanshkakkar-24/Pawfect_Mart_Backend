@@ -8,6 +8,6 @@ import {
 const router = express.Router();
 
 router.get("/", protect, getWishlist);
-router.post("/:id", protect, toggleWishlist);
+router.post("/:productId", protect, toggleWishlist);
 
 export default router;

@@ -69,3 +69,16 @@ export const updateProduct = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// GET /api/products/featured
+export const getFeaturedProducts = async (req, res) => {
+  try {
+    const products = await Product.find({})
+      .limit(5)
+      .select("name price image description"); // keep payload light
+
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch featured products" });
+  }
+};

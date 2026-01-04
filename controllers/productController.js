@@ -75,7 +75,7 @@ export const getFeaturedProducts = async (req, res) => {
   try {
     const products = await Product.find({})
       .limit(5)
-      .select("name price image description"); // keep payload light
+      .select("name price image description category"); // keep payload light
 
     res.json(products);
   } catch (err) {

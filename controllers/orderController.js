@@ -18,6 +18,28 @@ export const placeOrder = async (req, res) => {
       return res.status(400).json({ message: "Cart is empty" });
     }
 
+    /* ================= STOCK VALIDATION ================= */
+    for (const item of cart.items) {
+      if (!item.product) {
+        return res.status(400).json({ message: "Invalid product in cart" });
+      }
+
+      if (item.product.stock < item.quantity) {
+        return res.status(400).json({
+          message: `Insufficient stock for ${item.product.name}`,
+        });
+      }
+    }
+
+    /* ================= REDUCE STOCK ================= */
+    for (const item of cart.items) {
+      await Product.findByIdAndUpdate(
+        item.product._id,
+        { $inc: { stock: -item.quantity } }
+      );
+    }
+
+    /* ================= CREATE ORDER ================= */
     const orderProducts = cart.items.map((item) => ({
       product: item.product._id,
       quantity: item.quantity,
@@ -31,15 +53,19 @@ export const placeOrder = async (req, res) => {
     const order = await Order.create({
       user: req.user._id,
       products: orderProducts,
-      address,              // ✅ STORE ADDRESS SNAPSHOT
+      address,              // snapshot
       totalAmount,
       paymentMethod: "COD",
       paymentStatus: "pending",
       orderStatus: "processing",
     });
 
+    /* ================= CLEAR CART ================= */
     cart.items = [];
     await cart.save();
+
+    /* ================= CLEAR RESERVATIONS (OPTIONAL) ================= */
+    await StockReservation.deleteMany({ user: req.user._id });
 
     res.status(201).json(order);
   } catch (error) {
@@ -47,6 +73,7 @@ export const placeOrder = async (req, res) => {
     res.status(500).json({ message: "Order creation failed" });
   }
 };
+
 
 export const getMyOrders = async (req, res) => {
   try {
@@ -75,14 +102,26 @@ export const updateOrderStatus = async (req, res) => {
 export const getOrderById = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id)
+      .populate("user", "name email")
       .populate("products.product");
 
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
     }
 
+    // ✅ Admin can access any order
+    if (req.user.role === "admin") {
+      return res.json(order);
+    }
+
+    // ✅ User can access ONLY their own order
+    if (order.user._id.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+
     res.json(order);
   } catch (error) {
+    console.error("getOrderById error:", error);
     res.status(500).json({ message: "Failed to fetch order" });
   }
 };

@@ -18,6 +18,18 @@ connectDB();
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+app.get("/", (req, res) => {
+  res.status(200).json({
+    status: "OK",
+    message: "Pawfect Mart Backend is running 🚀"
+  });
+});
+
+app.get("/health", (req, res) => {
+  res.status(200).send("OK");
+});
+
 app.use("/api/upload", uploadRoutes);
 app.use("/api/wishlist", wishlistRoutes);
 app.use("/api/users", userRoutes);

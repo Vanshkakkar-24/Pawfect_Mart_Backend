@@ -12,6 +12,7 @@ import uploadRoutes from "./routes/uploadRoutes.js";
 import wishlistRoutes from "./routes/wishlistRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import addressRoutes from "./routes/addressRoutes.js";
+import couponRoutes from "./routes/couponRoutes.js"
 
 connectDB();
 
@@ -38,6 +39,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
+app.use("/api/coupons", couponRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

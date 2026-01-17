@@ -30,7 +30,12 @@ const orderSchema = new mongoose.Schema(
     orderStatus: {
       type: String,
       default: "Processing"
-    }
+    },
+    coupon: {
+      code: String,
+      discount: Number
+    },
+
   },
   { timestamps: true }
 );

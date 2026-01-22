@@ -19,7 +19,7 @@ export const createProduct = async (req, res) => {
       category: req.body.category, // dog | cat
       subCategory: req.body.subCategory,
       stock: req.body.stock,
-      image: req.body.image
+      images: req.body.images
     });
 
     const createdProduct = await product.save();
@@ -60,7 +60,7 @@ export const updateProduct = async (req, res) => {
     product.category = req.body.category || product.category;
     product.subCategory = req.body.subCategory || product.subCategory;
     product.stock = req.body.stock || product.stock;
-    product.image = req.body.image || product.image;
+    product.images = req.body.images || product.images;
 
     const updatedProduct = await product.save();
 
@@ -75,7 +75,7 @@ export const getFeaturedProducts = async (req, res) => {
   try {
     const products = await Product.find({})
       .limit(5)
-      .select("name price image description category"); // keep payload light
+      .select("name price images description category"); // keep payload light
 
     res.json(products);
   } catch (err) {

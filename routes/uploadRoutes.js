@@ -9,12 +9,15 @@ router.post(
   "/",
   protect,
   isAdmin,
-  upload.single("image"),
+  upload.array("images", 5),
   (req, res) => {
+    const imageUrls = req.files.map(file => file.path);
+
     res.json({
-      imageUrl: req.file.path,
+      imageUrls,
     });
   }
 );
+
 
 export default router;

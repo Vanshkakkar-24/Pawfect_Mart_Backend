@@ -1,6 +1,7 @@
 import User from "../models/user.js"
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { sendWelcomeEmail } from "../utils/sendEmail.js";
 
 const generateToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "7d" });
@@ -17,8 +18,14 @@ export const registerUser = async (req, res) => {
     name,
     email,
     password: hashedPassword,
-    role: role || "user" 
+    role: role || "user"
   });
+
+  try {
+    await sendWelcomeEmail(user.email, user.name);
+  } catch (emailError) {
+    console.error("Welcome email failed:", emailError.message);
+  }
 
   res.status(201).json({
     _id: user._id,

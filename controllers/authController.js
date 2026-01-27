@@ -31,6 +31,7 @@ export const googleAuth = async (req, res) => {
 
     // 2️⃣ Check if user already exists
     let user = await User.findOne({ email });
+    let isNewUser = false;
 
     // 3️⃣ If user doesn't exist → create Google user
     if (!user) {
@@ -39,25 +40,35 @@ export const googleAuth = async (req, res) => {
         email,
         avatar: picture,
         isGoogleUser: true,
-        password: undefined, // IMPORTANT: no password for Google users
+        password: undefined,
       });
+
+      isNewUser = true; // ⭐ mark first-time signup
     }
 
-    // 4️⃣ Prevent normal users from logging in via Google accidentally
+    // 4️⃣ Prevent email/password users from Google login
     if (!user.isGoogleUser) {
       return res.status(400).json({
         message: "This email is registered using email & password",
       });
     }
 
-    // 5️⃣ Generate JWT
+    // ⭐ 5️⃣ Send welcome email ONLY on first Google signup
+    if (isNewUser) {
+      try {
+        await sendWelcomeEmail(user.email, user.name);
+      } catch (emailError) {
+        console.error("Welcome email failed:", emailError.message);
+      }
+    }
+
+    // 6️⃣ Generate JWT
     const jwtToken = jwt.sign(
       { id: user._id },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
 
-    // 6️⃣ Send response
     res.status(200).json({
       token: jwtToken,
       user,
@@ -68,6 +79,7 @@ export const googleAuth = async (req, res) => {
     res.status(401).json({ message: "Google authentication failed" });
   }
 };
+
 
 export const registerUser = async (req, res) => {
   const { name, email, password, role } = req.body;

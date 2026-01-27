@@ -3,10 +3,19 @@ import User from "../models/user.js";
 /* ================= GET ALL ADDRESSES ================= */
 export const getAddresses = async (req, res) => {
   try {
+    if (!req.user) {
+      return res.status(401).json({ message: "Not authorized" });
+    }
+
     const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
     res.json(user.addresses);
   } catch (err) {
-    console.error(err);
+    console.error("Get addresses error:", err);
     res.status(500).json({ message: "Failed to fetch addresses" });
   }
 };
@@ -14,7 +23,15 @@ export const getAddresses = async (req, res) => {
 /* ================= ADD NEW ADDRESS ================= */
 export const addAddress = async (req, res) => {
   try {
+    if (!req.user) {
+      return res.status(401).json({ message: "Not authorized" });
+    }
+
     const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
     const {
       name,
@@ -34,7 +51,6 @@ export const addAddress = async (req, res) => {
 
     // 🔥 FIRST ADDRESS → FORCE DEFAULT
     const isFirstAddress = user.addresses.length === 0;
-
     const shouldBeDefault = isFirstAddress ? true : !!isDefault;
 
     // ✅ If setting default → unset old default
@@ -66,7 +82,16 @@ export const addAddress = async (req, res) => {
 /* ================= UPDATE ADDRESS ================= */
 export const updateAddress = async (req, res) => {
   try {
+    if (!req.user) {
+      return res.status(401).json({ message: "Not authorized" });
+    }
+
     const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
     const address = user.addresses.id(req.params.addressId);
 
     if (!address) {
@@ -93,7 +118,15 @@ export const updateAddress = async (req, res) => {
 /* ================= DELETE ADDRESS ================= */
 export const deleteAddress = async (req, res) => {
   try {
+    if (!req.user) {
+      return res.status(401).json({ message: "Not authorized" });
+    }
+
     const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
     const addressToDelete = user.addresses.id(req.params.addressId);
 

@@ -43,6 +43,12 @@ export const googleAuth = async (req, res) => {
       });
     }
 
+    try {
+      await sendWelcomeEmail(user.email, user.name);
+    } catch (emailError) {
+      console.error("Welcome email failed:", emailError.message);
+    }
+
     // 4️⃣ Prevent normal users from logging in via Google accidentally
     if (!user.isGoogleUser) {
       return res.status(400).json({

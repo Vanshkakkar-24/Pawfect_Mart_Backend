@@ -2,9 +2,12 @@ import User from "../models/user.js";
 import mongoose from "mongoose";
 
 /* ================= ADD / REMOVE ================= */
-
 export const toggleWishlist = async (req, res) => {
   try {
+    if (!req.user) {
+      return res.status(401).json({ message: "Not authorized" });
+    }
+
     const { productId } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(productId)) {
@@ -12,6 +15,10 @@ export const toggleWishlist = async (req, res) => {
     }
 
     const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
     // Normalize wishlist to ObjectIds only
     user.wishlist = user.wishlist
@@ -44,12 +51,22 @@ export const toggleWishlist = async (req, res) => {
   }
 };
 
-
-
 /* ================= GET WISHLIST ================= */
 export const getWishlist = async (req, res) => {
-  const user = await User.findById(req.user._id)
-    .populate("wishlist");
+  try {
+    if (!req.user) {
+      return res.status(401).json({ message: "Not authorized" });
+    }
 
-  res.json(user.wishlist);
+    const user = await User.findById(req.user._id).populate("wishlist");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json(user.wishlist);
+  } catch (error) {
+    console.error("Get wishlist error:", error);
+    res.status(500).json({ message: "Failed to fetch wishlist" });
+  }
 };

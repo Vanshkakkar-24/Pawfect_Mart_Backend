@@ -55,11 +55,8 @@ export const googleAuth = async (req, res) => {
 
     // ⭐ 5️⃣ Send welcome email ONLY on first Google signup
     if (isNewUser) {
-      try {
-        await sendWelcomeEmail(user.email, user.name);
-      } catch (emailError) {
-        console.error("Welcome email failed:", emailError.message);
-      }
+      sendWelcomeEmail(user.email, user.name)
+        .catch(err => console.error("Welcome email failed:", err.message));
     }
 
     // 6️⃣ Generate JWT
